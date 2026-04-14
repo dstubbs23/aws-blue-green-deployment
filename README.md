@@ -1,17 +1,17 @@
 # AWS Blue/Green Deployment
-# 📌 Overview
+## 📌 Overview
 This project demonstrates a Blue/Green Deployment strategy on AWS to enable safe application realeases with minimal downtime.
 
 Two seperate environments (Blue = current production, Green = new version) were deployed behind an Application Load Balancer (ALB), allowing traffic shifting and rollback capability.
 
-# 🎯 Project Goals
+## 🎯 Project Goals
 - Implement a Blue/Green deployment architecture
 - Achieve near zero-downtime deployments
 - Validate application health before traffic switching
 - Simulate a real-world production deployment workflow
 - Demonstrate troubleshooting and debugging skills in AWS
 
-# 🏗️ Architecture
+## 🏗️ Architecture
 - Application Load Balancer (ALB)
 - Blue Target Group (v1 - production)
 - Green Target Group (v2 - new version)
@@ -19,7 +19,7 @@ Two seperate environments (Blue = current production, Green = new version) were 
 - Security Groups
 - Health Checks
 
-# ⚒️ Services Used
+## ⚒️ Services Used
 - Amazon EC2
 - Application Load Balancer (ALB)
 - Target Groups
@@ -28,7 +28,7 @@ Two seperate environments (Blue = current production, Green = new version) were 
 - Security Groups
 - User Data (Bash Scripting)
 
-# 🚀 Deployment Workflow
+## 🚀 Deployment Workflow
 1. Deploy Blue Environment (Production)
 - Launched EC2 Instances
 - Installed Apache via User Data
@@ -54,12 +54,12 @@ Two seperate environments (Blue = current production, Green = new version) were 
 - Confirmed new version via ALB DNS
 - Verified application functionality
 
-# 🔙 Rollback Strategy
+## 🔙 Rollback Strategy
 If issues are detected:
 - Switch ALB listener back to Blue target group
 - Restore previous stable environment instantly
 
-# ⚠️ Challenges & Solutions
+## ⚠️ Challenges & Solutions
 Issue: ALB returning 502 Bad Gateway
 - Cause: Web server not fully initialized or misconfigured
 - Fix: Verified Apache installation in user data and ensured service started properly
@@ -68,21 +68,21 @@ Issue: Target Group Health Checks Failing
 - Cause: Security Group rules blocking traffic or incorrect health check path
 - Fix: Updated Security Groups and confirmed HTTP endpoint returned 200
 
-# 🧠 Key Skills Demonstrated
+## 🧠 Key Skills Demonstrated
 - AWS networking and load balancing
 - Blue/Green deployment strategy
 - Infrastructure troubleshooting and debugging
 - Linux server configuration with user data
 - Application health validation and monitoring
 
-# 🚀 Future Improvements
+## 🚀 Future Improvements
 - Automate infrasturcture using Terraform
 - Implement AWS CodeDeploy for automated Blue/Green deployments
 - Add CI/CD pipeline
 - Integrate CloudWatch Monitoring & Alerts
 - Use Route53 weighted routing for gradual traffic shifting
 
-# 📸 Full Screenshot walkthrough
+## 📸 Full Screenshot walkthrough
 - Additional screenshots can be found in the /screenshots directory
 
 
