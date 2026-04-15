@@ -1,0 +1,182 @@
+#!/bin/bash
+# Update OS and install Apache
+yum update -y
+yum install -y httpd
+
+# Use IMDSv2 to fetch instance ID
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/instance-id)
+
+# Environment metadata (GREEN)
+ENV_NAME="Green Environment"
+VERSION="v2"
+DESCRIPTION="This is the new GREEN environment, ready to take over production traffic."
+
+# Create the HTML page
+cat <<EOF > /var/www/html/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>$ENV_NAME • $VERSION</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #16a34a 0, #020617 45%, #020617 100%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 20px;
+      padding: 28px 32px;
+      max-width: 640px;
+      width: 100%;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.65);
+      color: #bbf7d0;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+    h1 {
+      font-size: 28px;
+      margin: 16px 0 4px;
+    }
+    .version {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+    .description {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #d1d5db;
+      margin-bottom: 22px;
+    }
+    .meta-card {
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top left, rgba(22, 163, 74, 0.22), rgba(15, 23, 42, 0.96));
+      margin-bottom: 16px;
+    }
+    .meta-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .instance-id {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #e5e7eb;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .meta-footer {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+    .label {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+    .footer {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    @media (max-width: 640px) {
+      .card {
+        padding: 20px 18px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="pill">
+      <span class="dot"></span>
+      <span>Active Environment</span>
+    </div>
+
+    <h1>$ENV_NAME</h1>
+    <div class="version">Application Version: <strong>$VERSION</strong></div>
+
+    <div class="description">
+      $DESCRIPTION
+    </div>
+
+    <div class="meta-card">
+      <div class="meta-label">Instance ID</div>
+      <div class="instance-id">$INSTANCE_ID</div>
+      <div class="meta-footer">
+        Each refresh may hit a different instance as the Auto Scaling Group scales or during rolling deployments.
+      </div>
+    </div>
+
+    <div class="grid">
+      <div><span class="label">Deployment Pattern:</span> Blue-Green / Rolling Demo</div>
+      <div><span class="label">Served via:</span> Auto Scaling Group behind an Application Load Balancer</div>
+    </div>
+
+    <div class="footer">
+      Refresh this page during deployments to watch traffic shift between instances and environments.
+    </div>
+  </div>
+</body>
+</html>
+EOF
+
+# Enable and start Apache
+systemctl enable httpd
+systemctl start httpd
