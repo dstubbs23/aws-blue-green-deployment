@@ -1,92 +1,86 @@
 # AWS Blue/Green Deployment
+Designed and implemented a production-style Blue/Green deployment on AWS to enable zero-downtime releases and reduce deployment risk using an Application Load Balancer.
+
 ## 📌 Overview
-This project demonstrates a Blue/Green Deployment strategy on AWS to enable safe application realeases with minimal downtime.
+This project demonstrates a Blue/Green Deployment strategy on AWS using two seperate environments behind an Application Load Balancer.
 
-Two seperate environments (Blue = current production, Green = new version) were deployed behind an Application Load Balancer (ALB), allowing traffic shifting and rollback capability.
+A new application version is deployed to the Green environment, validated through health checks, and then traffic is shifted from the Blue (production) environment to the Green environment with minimal downtime.
 
-## 🎯 Project Goals
-- Implement a Blue/Green deployment architecture
-- Achieve near zero-downtime deployments
-- Validate application health before traffic switching
-- Simulate a real-world production deployment workflow
-- Demonstrate troubleshooting and debugging skills in AWS
+
+## 🎯 Key Outcomes
+- Implemented a zero-downtime deployment strategy
+- Reduced deployment risk using environment isolation
+- Validated application health before production cutover
+- Designed rollback strategy for rapid recovery
+- Troubleshoot real-world AWS infrastructure issues (ALB, health checks, security groups)
 
 ## 🏗️ Architecture
 
 ![Architecture Diagram](architecture-diagram/blue-green-architecture-1.png)
 
-- Application Load Balancer (ALB)
-- Blue Target Group (v1 - production)
-- Green Target Group (v2 - new version)
-- EC2 instances (Apache web server)
-- Security Groups
-- Health Checks
-
 ## ⚒️ Services Used
-- Amazon EC2
-- Application Load Balancer (ALB)
-- Target Groups
-- Auto Scaling Groups
-- IAM
-- Security Groups
-- User Data (Bash Scripting)
+- Amazon EC2 - Instances running the application
+- Application Load Balancer (ALB) - Traffic distribution and routing
+- Target Groups - Blue and Green routing destinations
+- Launch Templates - Version-controlled instance configuration
+- IAM - Instance roles and permissions
+- VPC, Subnets, Security Groups - Networking and access control
+- User Data (Bash)
 
 ## 🚀 Deployment Workflow
-1. Deploy Blue Environment (Production)
-- Launched EC2 Instances
-- Installed Apache via User Data
-- Registered Instances in Blue target group
+### 1. Deploy Blue Environment (Production)
+Created the initial production environment by launching EC2 instances using Launch Templates and registering them with the Blue Target Group.
+![Blue Target Group](screenshots/01-blue-target-group.png)
 
-2. Configure Application Load Balancer
-- Created ALB
-- Attached Blue target group
-- Configured Listener on port 80
 
-3. Deploy Green Environment (New Version)
-- Launched new EC2 isntances with updated version
-- Registered EC2 instances in Green target group
+### 2. Configure Application Load Balancer
+Set up an Application Load Balancer to route traffic to the Blue environment.
+![ALB](screenshots/04-application-load-balancer.png)
 
-4. Perform Health Checks
-- Verified Green environment passed ALB health checks
-- Ensured instances returned HTTP 200 responses
+### 3. Deploy Green Environment (New Version)
+Launched new EC2 instances using a launch template and registered them in a seperate Green target group.
+![Launch Template](screenshots/03-launch-template.png)
+![Green Target Group](screenshots/05-green-target-group.png)
 
-5. Shift Traffic to Green Environment
-- Updated ALB listener rules to forward traffic to Green target group
+### 4. Validate Health Checks
+Ensured Green environment instances passed ALB health checks before shifting traffic.
 
-6. Validate Deployment
-- Confirmed new version via ALB DNS
-- Verified application functionality
+### 5. Traffic Shift
+Updated ALB configuration to route traffic from Blue to Green.
+![Rolling Deployment](screenshots/06-rolling-deployment.png)
 
-## 🔙 Rollback Strategy
+
+### 6. 🔙 Rollback Strategy
 If issues are detected:
-- Switch ALB listener back to Blue target group
-- Restore previous stable environment instantly
+- Re-route traffic back to Blue target group
+- Restore previous stable version instantly
 
-## ⚠️ Challenges & Solutions
-Issue: ALB returning 502 Bad Gateway
-- Cause: Web server not fully initialized or misconfigured
-- Fix: Verified Apache installation in user data and ensured service started properly
+### 7. ⚠️ Challenges & Solutions
+#### ALB returning 502 Bad Gateway
+- Cause: Web server not initialized properly
+- Fix: Ensured Apache installed and running via User Data
 
-Issue: Target Group Health Checks Failing
-- Cause: Security Group rules blocking traffic or incorrect health check path
-- Fix: Updated Security Groups and confirmed HTTP endpoint returned 200
+#### Health checks failing
+- Cause: Incorrect security group configuration
+- Fix: Allowed inbound traffic on port 80
+
+#### SSH issues
+- Cause: Security group restrictions
+- Fix: Allowed port 22 access from trusted IP
+
 
 ## 🧠 Key Skills Demonstrated
-- AWS networking and load balancing
+- Cloud architecture design
+- Load balacing and traffic routing
 - Blue/Green deployment strategy
-- Infrastructure troubleshooting and debugging
-- Linux server configuration with user data
-- Application health validation and monitoring
+- Infrastructure troubleshooting
+- Linux server configuration
 
 ## 🚀 Future Improvements
-- Automate infrasturcture using Terraform
-- Implement AWS CodeDeploy for automated Blue/Green deployments
-- Add CI/CD pipeline
-- Integrate CloudWatch Monitoring & Alerts
-- Use Route53 weighted routing for gradual traffic shifting
-
-## 📸 Full Screenshot walkthrough
-- Additional screenshots can be found in the /screenshots directory
+- Automate infrastructure with Terraform
+- Implement AWS CodeDeploy for automated deployments
+- ADD CI/CD Pipeline
+- Integrate CloudWatch monitoring alerts
 
 
 
