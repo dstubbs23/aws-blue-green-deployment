@@ -1,5 +1,8 @@
 # AWS Blue/Green Deployment
 ## 📌 Overview
+
+<img width="10164" height="6006" alt="blue-green-architecture-1" src="https://github.com/user-attachments/assets/b4c99f1d-8df4-4034-bc6f-19f4f99d1dc5" />
+
 This project demonstrates a Blue/Green Deployment strategy on AWS to enable safe application realeases with minimal downtime.
 
 Two seperate environments (Blue = current production, Green = new version) were deployed behind an Application Load Balancer (ALB), allowing traffic shifting and rollback capability.
